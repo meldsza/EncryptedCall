@@ -1,0 +1,23 @@
+{
+  "name": "encryptedcall",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/meldsza/EncryptedCall.git"
+  },
+  "author": "Melroy Neil Dsouza",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/meldsza/EncryptedCall/issues"
+  },
+  "homepage": "https://github.com/meldsza/EncryptedCall#readme",
+  "dependencies": {
+    "socket.io": "^2.3.0",
+    "uuid": "^8.3.0"
+  }
+}

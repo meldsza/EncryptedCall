@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Untitled</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id='app'>
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="container-fluid"><a class="navbar-brand" href="#">EncryptedCall</a>
+                <form class="form-inline" v-if="status == 'connected'">
+                    <button class="btn btn-primary mr-2" type="button" v-if="audio" @click="mute"><i
+                            class="fas fa-microphone"></i></button>
+                    <button class="btn btn-primary mr-2" type="button" v-if="!audio" @click="unmute"><i
+                            class="fas fa-microphone-slash"></i></button>
+                    <button class="btn btn-primary mr-2" type="button" v-if="video" @click="videoMute"><i
+                            class="fas fa-video"></i></button>
+                    <button class="btn btn-primary mr-2" type="button" v-if="!video" @click="videoUnmute"><i
+                            class="fas fa-video-slash"></i></button>
+                </form>
+            </div>
+        </nav>
+        <div>
+
+        </div>
+        <div v-if="ready">
+            <div v-show="status == 'connected'">
+                <video autoplay class="remote-video" id="remote-video"></video>
+                <video autoplay muted class="local-video" id="local-video"></video>
+            </div>
+            <div v-show="status != 'connected'" class="container">
+                <br>
+                <div v-if="status == 'idle'">
+                    <div class="card">
+                        <div class="card-body">
+                            <h1>Your ID: {{uuid}}</h1>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="card">
+                        <div class="card-body">
+                            <form @submit.prevent="callUser">
+                                <div class="form-group">
+                                    <label>Enter the user id to call</label>
+                                    <input type="text" class="form-control" v-model="toCallID">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Call</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div v-else-if="status == 'calling'">
+                    <div class="card">
+                        <div class="card-body">
+                            <h1>Waiting for User to Accept Call</h1>
+                        </div>
+                    </div>
+                </div>
+                <div v-else-if="status == 'called'">
+                    <div class="card">
+                        <div class="card-body">
+                            <h1>Someone has called you.</h1>
+                            <div class="text-center">
+                                <button class="btn btn-success mr-2" type="button" @click="confirmCall">Accept</button>
+                                <button class="btn btn-danger mr-2" type="button" @click="rejectCall">Reject</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div v-else class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <script src="https://unpkg.com/vue-toasted"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
