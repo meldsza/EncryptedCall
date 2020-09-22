@@ -1,5 +1,5 @@
 const { RTCPeerConnection, RTCSessionDescription } = window;
-const socket = io.connect("http://localhost:5000");
+const socket = io.connect("https://encrypted-call-meldsza.herokuapp.com/");
 Vue.use(Toasted)
 let localStream;
 var app = new Vue({
