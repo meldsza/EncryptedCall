@@ -33,6 +33,7 @@ var app = new Vue({
         video: true,
         toCallID: '',
         peerSocket: '',
+        candidates: [],
         callingOffer: {},
     },
     mounted() {
@@ -54,14 +55,8 @@ var app = new Vue({
                 }
             };
             this.peerConnection.onicecandidate = (e) => {
-                console.log("Preparing to send Ice", e.candidate, this.peerSocket)
-                if (e.candidate && this.peerSocket) {
-                    console.log("Sending Ice", e.candidate)
-                    socket.emit('send-ice', {
-                        to: this.peerSocket,
-                        candidate: e.candidate
-                    })
-                }
+                this.candidates.push(e.candidate)
+
             }
             navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(stream => {
                 localStream = stream
@@ -100,7 +95,7 @@ var app = new Vue({
                 answer,
                 to: this.callingOffer.socket
             });
-
+            this.sendIce();
             this.status = 'connected'
         },
         async handleConversion(data) {
@@ -112,6 +107,19 @@ var app = new Vue({
                 offer,
                 to: this.peerSocket
             });
+        },
+        async sendIce() {
+            while (this.candidates.length > 0) {
+                let candidate = this.candidates.shift();
+                console.log("Preparing to send Ice", candidate, this.peerSocket)
+                if (candidate && this.peerSocket) {
+                    console.log("Sending Ice", candidate)
+                    socket.emit('send-ice', {
+                        to: this.peerSocket,
+                        candidate: candidate
+                    })
+                }
+            }
         },
         async callUser() {
             socket.emit("call-convert", {
@@ -125,7 +133,7 @@ var app = new Vue({
             await this.peerConnection.setRemoteDescription(
                 new RTCSessionDescription(data.answer)
             );
-
+            this.sendIce();
             this.status = 'connected';
         },
         handleRejected(data) {
