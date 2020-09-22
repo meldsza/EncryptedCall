@@ -1,4 +1,5 @@
 const { RTCPeerConnection, RTCSessionDescription } = window;
+
 const socket = io.connect("https://encrypted-call-meldsza.herokuapp.com/");
 Vue.use(Toasted)
 let localStream;
@@ -42,6 +43,7 @@ var app = new Vue({
         socket.on("call-rejected", this.handleRejected);
         socket.on("set-id", this.handleSetID);
         socket.on("ice", this.handleIce);
+        socket.on("conversion-made", this.handleConversion);
     },
     methods: {
         setupVideo() {
@@ -52,7 +54,7 @@ var app = new Vue({
                 }
             };
             this.peerConnection.onicecandidate = (e) => {
-                console.log(e.candidate, this.peerSocket)
+                console.log("Preparing to send Ice", e.candidate, this.peerSocket)
                 if (e.candidate && this.peerSocket) {
                     console.log("Sending Ice", e.candidate)
                     socket.emit('send-ice', {
@@ -101,17 +103,25 @@ var app = new Vue({
 
             this.status = 'connected'
         },
-        async callUser() {
+        async handleConversion(data) {
             const offer = await this.peerConnection.createOffer();
             await this.peerConnection.setLocalDescription(new RTCSessionDescription(offer));
-            this.status = 'calling';
+
+            this.peerSocket = data.socket
             socket.emit("call-user", {
                 offer,
-                to: this.toCallID
+                to: this.peerSocket
             });
+        },
+        async callUser() {
+            socket.emit("call-convert", {
+                uuid: this.toCallID
+            });
+            this.status = 'calling';
         },
         async handleCallAnswered(data) {
             this.peerSocket = data.socket;
+            console.log("Set Peer")
             await this.peerConnection.setRemoteDescription(
                 new RTCSessionDescription(data.answer)
             );

@@ -37,10 +37,21 @@ module.exports = class Server {
                     code: id
                 });
             }
+            //convert uuid to socket
+            socket.on("call-convert", data => {
+                console.log("Convert", data)
+                if (this.activeSocketsIndex[data.uuid]) {
+                    socket.emit("conversion-made", {
+                        socket: this.activeSocketsIndex[data.uuid]
+                    });
+                } else {
+                    socket.emit('call-invalid', { id: data.uuid })
+                }
+            });
             //prepare to call a user
             socket.on("call-user", (data) => {
-                if (this.activeSocketsIndex[data.to]) {
-                    socket.to(this.activeSocketsIndex[data.to]).emit("call-made", {
+                if (this.activeSockets[data.to]) {
+                    socket.to(data.to).emit("call-made", {
                         offer: data.offer,
                         socket: socket.id
                     });
@@ -48,6 +59,7 @@ module.exports = class Server {
                     socket.emit('call-invalid', { id: data.to })
                 }
             });
+
             //prepare to answer call
             socket.on("call-answer", data => {
                 socket.to(data.to).emit("call-answered", {
