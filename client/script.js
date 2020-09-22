@@ -2,6 +2,8 @@ const { RTCPeerConnection, RTCSessionDescription } = window;
 
 const socket = io.connect("https://encrypted-call-meldsza.herokuapp.com/");
 Vue.use(Toasted)
+Vue.use(VueMaterial.default)
+
 let localStream;
 var app = new Vue({
     el: '#app',
@@ -66,7 +68,7 @@ var app = new Vue({
 
             }
             navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(stream => {
-                localStream = stream
+                this.localStream = stream
                 const localVideo = document.getElementById("local-video");
                 if (localVideo) {
                     localVideo.srcObject = stream;
@@ -155,22 +157,22 @@ var app = new Vue({
         },
         mute() {
             this.audio = false;
-            let audioStream = this.localStream.getStreams().find(stream => stream.kind == 'audio')
+            let audioStream = this.localStream.getAudioTracks()[0]
             if (audioStream) audioStream.enabled = false
         },
         videoMute() {
             this.video = false;
-            let videoStream = this.localStream.getStreams().find(stream => stream.kind == 'video')
+            let videoStream = this.localStream.getVideoTracks()[0]
             if (videoStream) videoStream.enabled = false
         },
         unmute() {
             this.audio = true;
-            let audioStream = this.localStream.getStreams().find(stream => stream.kind == 'audio')
+            let audioStream = this.localStream.getAudioTracks()[0]
             if (audioStream) audioStream.enabled = true
         },
         videoUnmute() {
             this.video = true;
-            let videoStream = this.localStream.getStreams().find(stream => stream.kind == 'video')
+            let videoStream = this.localStream.getVideoTracks()[0]
             if (videoStream) videoStream.enabled = true
         },
         rejectCall() {

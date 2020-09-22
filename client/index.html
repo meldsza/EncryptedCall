@@ -5,86 +5,100 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>EncryptedCall</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <div id='app'>
-        <nav class="navbar navbar-dark bg-dark">
-            <div class="container-fluid"><a class="navbar-brand" href="#">EncryptedCall</a>
-                <form class="form-inline" v-if="status == 'connected'">
-                    <button class="btn btn-primary mr-2" type="button" v-if="audio" @click="mute"><i
-                            class="fas fa-microphone"></i></button>
-                    <button class="btn btn-primary mr-2" type="button" v-if="!audio" @click="unmute"><i
-                            class="fas fa-microphone-slash"></i></button>
-                    <button class="btn btn-primary mr-2" type="button" v-if="video" @click="videoMute"><i
-                            class="fas fa-video"></i></button>
-                    <button class="btn btn-primary mr-2" type="button" v-if="!video" @click="videoUnmute"><i
-                            class="fas fa-video-slash"></i></button>
-                </form>
-            </div>
-        </nav>
-        <div>
+        <md-app style="min-height: 100vh;">
+            <md-app-toolbar class="md-primary">
+                <span class="md-title">EncryptedCall</span>
+            </md-app-toolbar>
 
-        </div>
-        <div v-if="ready">
-            <div v-show="status == 'connected'">
-                <video autoplay class="remote-video" id="remote-video"></video>
-                <video autoplay muted class="local-video" id="local-video"></video>
-            </div>
-            <div v-show="status != 'connected'" class="container">
-                <br>
-                <div v-if="status == 'idle'">
-                    <div class="card">
-                        <div class="card-body">
-                            <h1>Your ID: {{uuid}}</h1>
-                        </div>
-                    </div>
-                    <br>
-                    <div class="card">
-                        <div class="card-body">
-                            <form @submit.prevent="callUser">
-                                <div class="form-group">
-                                    <label>Enter the user id to call</label>
-                                    <input type="text" class="form-control" v-model="toCallID">
-                                </div>
-                                <button type="submit" class="btn btn-primary">Call</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div v-else-if="status == 'calling'">
-                    <div class="card">
-                        <div class="card-body">
-                            <h1>Waiting for User to Accept Call</h1>
-                        </div>
-                    </div>
-                </div>
-                <div v-else-if="status == 'called'">
-                    <div class="card">
-                        <div class="card-body">
-                            <h1>Someone has called you.</h1>
-                            <div class="text-center">
-                                <button class="btn btn-success mr-2" type="button" @click="confirmCall">Accept</button>
-                                <button class="btn btn-danger mr-2" type="button" @click="rejectCall">Reject</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <md-app-content>
+                <div v-show="ready">
+                    <div v-show="status == 'connected'">
+                        <div class="md-layout md-gutter">
+                            <video autoplay class="md-layout-item remote-video md-medium-size-50 md-small-size-100"
+                                id="remote-video"></video>
+                            <video v-show="video" autoplay muted
+                                class="md-layout-item md-medium-size-50 md-small-size-100 local-video"
+                                id="local-video"></video>
 
-        </div>
-        <div v-else class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
+                        </div>
+
+                    </div>
+                    <div v-show="status != 'connected'" class="container">
+                        <br>
+                        <div v-if="status == 'idle'">
+                            <md-card>
+                                <md-card-header>
+                                    <div class="md-title">Your ID: {{uuid}}</div>
+                                </md-card-header>
+                                <md-card-content>
+
+                                </md-card-content>
+                            </md-card>
+                            <br>
+                            <md-card>
+                                <md-card-header>
+                                    <div class="md-title">Call another user</div>
+                                </md-card-header>
+                                <md-card-content>
+                                    <form @submit.prevent="callUser">
+                                        <md-field>
+                                            <label for="uuid">ID of the user to call</label>
+                                            <md-input name="toCallID-name" id="uuid" autocomplete="off"
+                                                v-model="toCallID" />
+                                        </md-field>
+                                        <md-button class="md-raised md-primary" type="submit">Call</md-button>
+
+                                    </form>
+                                </md-card-content>
+                            </md-card>
+                        </div>
+                        <div v-else-if="status == 'calling'">
+                            <md-card>
+                                <md-card-header>
+                                    <div class="md-title">Waiting for User to Accept Call</div>
+                                </md-card-header>
+                            </md-card>
+                        </div>
+                        <div v-else-if="status == 'called'">
+                            <md-card>
+                                <md-card-header>
+                                    <div class="md-title">Someone has called you.</div>
+                                </md-card-header>
+                                <md-card-actions>
+                                    <md-button class="md-raised md-primary" type="button" @click="confirmCall">
+                                        Accept</md-button>
+                                    <md-button class="md-raised md-accent" type="button" @click="rejectCall">Reject
+                                    </md-button>
+                                </md-card-actions>
+                            </md-card>
+                        </div>
+                    </div>
+
+                </div>
+                <md-progress-spinner v-show="!ready" md-mode="indeterminate"></md-progress-spinner>
+
+            </md-app-content>
+        </md-app>
+
+
+
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
-    <script src="https://unpkg.com/vue-toasted"></script>
+    <script src="https://unpkg.com/vue-material@1.0.0-beta-15"></script>
+    <script src="https://unpkg.com/vue-toasted@1.1.28"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
+        integrity="sha512-v8ng/uGxkge3d1IJuEo6dJP8JViyvms0cly9pnbfRxT6/31c3dRWxIiwGnMSWwZjHKOuY3EVmijs7k1jz/9bLA=="
+        crossorigin="anonymous"></script>
     <script src="script.js"></script>
 </body>
 
