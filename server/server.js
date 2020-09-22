@@ -56,6 +56,12 @@ module.exports = class Server {
                     socket: socket.id
                 });
             });
+            socket.on("send-ice", data => {
+                socket.to(data.to).emit("ice", {
+                    socket: socket.id,
+                    candidate: data.candidate
+                });
+            });
             //on client disconnect, remove user
             socket.on("disconnect", () => {
                 let id = this.activeSockets[socket.id];

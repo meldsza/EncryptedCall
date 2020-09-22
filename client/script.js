@@ -7,11 +7,14 @@ var app = new Vue({
     data: {
         status: 'idle',
         ready: false,
-        peerConnection: new RTCPeerConnection(),
+        peerConnection: new RTCPeerConnection({
+            iceServers: [{ urls: "stun:stun.1.google.com:19302" }]
+        }),
         uuid: '',
         audio: true,
         video: true,
         toCallID: '',
+        peerSocket: '',
         callingOffer: {},
     },
     mounted() {
@@ -21,6 +24,7 @@ var app = new Vue({
         socket.on("call-invalid", this.handleInvalid);
         socket.on("call-rejected", this.handleRejected);
         socket.on("set-id", this.handleSetID);
+        socket.on("ice", this.handleIce);
     },
     methods: {
         setupVideo() {
@@ -30,6 +34,16 @@ var app = new Vue({
                     remoteVideo.srcObject = stream;
                 }
             };
+            this.peerConnection.onicecandidate = (e) => {
+                console.log(e.candidate, this.peerSocket)
+                if (e.candidate && this.peerSocket) {
+                    console.log("Sending Ice", e.candidate)
+                    socket.emit('send-ice', {
+                        to: this.peerSocket,
+                        candidate: e.candidate
+                    })
+                }
+            }
             navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(stream => {
                 localStream = stream
                 const localVideo = document.getElementById("local-video");
@@ -51,6 +65,10 @@ var app = new Vue({
             this.ready = true;
 
         },
+        async handleIce(data) {
+            console.log("Adding Ice", data.candidate)
+            this.peerConnection.addIceCandidate(data.candidate)
+        },
         async confirmCall() {
 
             await this.peerConnection.setRemoteDescription(
@@ -58,11 +76,12 @@ var app = new Vue({
             );
             const answer = await this.peerConnection.createAnswer();
             await this.peerConnection.setLocalDescription(new RTCSessionDescription(answer));
-
+            this.peerSocket = this.callingOffer.socket;
             socket.emit("call-answer", {
                 answer,
                 to: this.callingOffer.socket
             });
+
             this.status = 'connected'
         },
         async callUser() {
@@ -75,10 +94,11 @@ var app = new Vue({
             });
         },
         async handleCallAnswered(data) {
-
+            this.peerSocket = data.socket;
             await this.peerConnection.setRemoteDescription(
                 new RTCSessionDescription(data.answer)
             );
+
             this.status = 'connected';
         },
         handleRejected(data) {
