@@ -4,7 +4,9 @@ const { v4: uuidv4 } = require('uuid');
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
-app.use(express.static('client'))
+app.use(express.static('client', {
+    etag: false
+}))
 //Server class to represent the server
 module.exports = class Server {
     constructor() {
