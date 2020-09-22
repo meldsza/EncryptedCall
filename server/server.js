@@ -1,7 +1,10 @@
 //import Socket.IO library
-let socketIO = require('socket.io');
+const socketIO = require('socket.io');
 const { v4: uuidv4 } = require('uuid');
-
+const express = require('express');
+const app = express();
+const http = require('http').createServer(app);
+app.use(express.static('client'))
 //Server class to represent the server
 module.exports = class Server {
     constructor() {
@@ -11,9 +14,11 @@ module.exports = class Server {
 
     listen(PORT) {
         this.PORT = PORT;//port to listen to
-        this.io = socketIO.listen(this.PORT);//listen to the port
-        console.log("Listening to ", this.PORT)
-        this.handleSocketConnection();//handle new connections on the port
+        this.io = socketIO.listen(http);//listen to the port
+        http.listen(this.PORT, () => {
+            console.log('listening on *:', this.PORT);
+            this.handleSocketConnection();//handle new connections on the port
+        });
     }
 
     handleSocketConnection() {
