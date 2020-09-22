@@ -26,7 +26,11 @@ var app = new Vue({
                     "stun:stun.voipstunt.com",
                     "stun:stun.voxgratia.org"
                 ]
-            }]
+            }, {
+                url: 'turn:numb.viagenie.ca',
+                credential: 'abcd@1234',
+                username: 'meldsza@gmail.com'
+            },]
         }),
         uuid: '',
         audio: true,
