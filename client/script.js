@@ -55,7 +55,10 @@ var app = new Vue({
                 }
             };
             this.peerConnection.onicecandidate = (e) => {
+
                 this.candidates.push(e.candidate)
+                if (this.status == 'connected') this.sendIce();
+
 
             }
             navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(stream => {
@@ -90,13 +93,15 @@ var app = new Vue({
             );
             const answer = await this.peerConnection.createAnswer();
             await this.peerConnection.setLocalDescription(new RTCSessionDescription(answer));
+
             this.peerSocket = this.callingOffer.socket;
             socket.emit("call-answer", {
                 answer,
                 to: this.callingOffer.socket
             });
-            this.sendIce();
+
             this.status = 'connected'
+            this.sendIce();
         },
         async handleConversion(data) {
             const offer = await this.peerConnection.createOffer();
